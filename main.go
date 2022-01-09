@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"time"
 	"unicode"
 
 	"github.com/gdamore/tcell"
@@ -8,7 +10,9 @@ import (
 )
 
 func main() {
-	txt := newText("Hello World!")
+	raw := `The quick brown fox, jumps over the lazy dog.`
+
+	txt := newText(raw)
 
 	textView := tview.NewTextView()
 	textView.SetDynamicColors(true)
@@ -49,9 +53,12 @@ func main() {
 		}
 	})
 
+	start := time.Now()
 	typingField.SetChangedFunc(func(s string) {
 		if txt.currentWord == len(txt.words) {
-			textView.SetText("Congratulations!")
+			duration := time.Now().Sub(start)
+			wpm := float64(len(raw)) / (5.0 * duration.Minutes())
+			textView.SetText(fmt.Sprintf("Congratulations! Your typing speed is %.2f WPM", wpm))
 			app.SetRoot(textFlex, true)
 		} else {
 			textView.SetText(txt.color(s))

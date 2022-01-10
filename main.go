@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 	"unicode"
 
@@ -36,7 +37,13 @@ func main() {
 	app := tview.NewApplication()
 	app.SetRoot(flex, true)
 
+	once := &sync.Once{}
+	var start time.Time
+
 	typingField.SetAcceptanceFunc(func(s string, r rune) bool {
+		once.Do(func() {
+			start = time.Now()
+		})
 		if !unicode.IsGraphic(r) {
 			return false
 		}
@@ -53,7 +60,6 @@ func main() {
 		}
 	})
 
-	start := time.Now()
 	typingField.SetChangedFunc(func(s string) {
 		if txt.currentWord == len(txt.words) {
 			duration := time.Now().Sub(start)

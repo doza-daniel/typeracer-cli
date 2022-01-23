@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"play/db"
 	"sync"
 	"time"
 	"unicode"
@@ -11,7 +12,15 @@ import (
 )
 
 func main() {
-	raw := `The quick brown fox, jumps over the lazy dog.`
+	texts, err := db.New("/home/daniel/Documents/texts.db")
+	if err != nil {
+		panic(err)
+	}
+
+	raw, err := texts.GetRandomText()
+	if err != nil {
+		panic(err)
+	}
 
 	txt := newText(raw)
 

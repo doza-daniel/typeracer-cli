@@ -29,6 +29,21 @@ type DB struct {
 	db *sql.DB
 }
 
+// GetTextAt ... should implement correct way of handing this
+func (db *DB) GetTextAt(int64) string {
+	text, err := db.GetRandomText()
+	if err != nil || text == "" {
+		return "The quick brown fox jumps over the lazy dog."
+	}
+
+	return text
+}
+
+// Size ... mocked for now
+func (db *DB) Size() int64 {
+	return 42
+}
+
 // GetRandomText ...
 func (db *DB) GetRandomText() (string, error) {
 	rows, err := db.db.Query("SELECT id FROM texts ORDER BY id DESC")

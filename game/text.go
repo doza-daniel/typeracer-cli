@@ -1,17 +1,53 @@
-package main
+package game
 
 import (
 	"fmt"
 	"strings"
+	"sync"
+	"time"
+	"unicode"
+
+	"github.com/rivo/tview"
 )
 
-func newText(orig string) *text {
-	return &text{words: strings.Split(orig, " ")}
+func newText(raw string) *text {
+	return &text{
+		raw:   raw,
+		words: strings.Split(raw, " "),
+		once:  &sync.Once{},
+	}
 }
 
 type text struct {
-	currentWord int
+	raw         string
 	words       []string
+	currentWord int
+
+	once  *sync.Once
+	start time.Time
+}
+
+func (t *text) acceptFun(typingField *tview.InputField) func(string, rune) bool {
+	return func(current string, input rune) bool {
+		t.once.Do(func() {
+			t.start = time.Now()
+		})
+
+		if !unicode.IsGraphic(input) {
+			return false
+		}
+
+		switch {
+		case t.isLastWord() && current == t.current():
+			fallthrough
+		case unicode.IsSpace(input) && current[:len(current)-1] == t.current():
+			typingField.SetText("")
+			t.next()
+			return false
+		default:
+			return true
+		}
+	}
 }
 
 func (t *text) current() string {
@@ -24,6 +60,15 @@ func (t *text) next() {
 
 func (t *text) isLastWord() bool {
 	return t.currentWord == len(t.words)-1
+}
+
+func (t *text) isDone() bool {
+	return t.currentWord == len(t.words)
+}
+
+func (t *text) calculateWPM(end time.Time) float64 {
+	duration := end.Sub(t.start)
+	return float64(len(t.raw)) / (5.0 * duration.Minutes())
 }
 
 func (t *text) color(input string) string {

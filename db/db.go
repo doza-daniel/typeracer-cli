@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -62,7 +61,6 @@ func (db *DB) GetRandomText() (string, error) {
 	}
 
 	i := rand.Intn(len(ids))
-	fmt.Println(i, ids[i])
 
 	row := db.db.QueryRow("SELECT text FROM texts WHERE id = ?", ids[i])
 

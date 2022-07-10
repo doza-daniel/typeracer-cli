@@ -11,8 +11,13 @@ type mockCorpus struct {
 	txt string
 }
 
-func (*mockCorpus) GetTextAt(int64) string {
-	return "The quick brown fox jumps over the lazy dog."
+func (*mockCorpus) GetTextAt(int64) game.Text {
+	return game.Text{
+		Content: "The quick brown fox jumps over the lazy dog.",
+		Source:  "Mock_Source",
+		Type:    "Mock_Type",
+		Author:  "Mock_Author",
+	}
 }
 func (*mockCorpus) Size() int64 {
 	return 1

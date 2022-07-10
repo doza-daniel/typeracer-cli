@@ -9,9 +9,17 @@ import (
 	"github.com/rivo/tview"
 )
 
+// Text ...
+type Text struct {
+	Content string
+	Type    string
+	Author  string
+	Source  string
+}
+
 // Corpus ...
 type Corpus interface {
-	GetTextAt(int64) string
+	GetTextAt(int64) Text
 	Size() int64
 }
 
@@ -19,6 +27,8 @@ type Corpus interface {
 type Game struct {
 	app    *tview.Application
 	corpus Corpus
+
+	txtDetails Text
 
 	mainContainer *tview.Flex
 }
@@ -49,8 +59,9 @@ func (game *Game) Run() error {
 
 func (game *Game) start() {
 	at := rand.Int63n(game.corpus.Size())
-	raw := game.corpus.GetTextAt(at)
-	txt := newText(raw)
+	text := game.corpus.GetTextAt(at)
+	game.txtDetails = text
+	txt := newText(text.Content)
 
 	textView := game.textView(txt)
 	typingField := game.typingInputField(txt, textView)
@@ -97,7 +108,19 @@ func (game *Game) typingInputField(txt *text, textView *tview.TextView) *tview.I
 }
 
 func (game *Game) resultPage(wpm float64) {
-	txt := fmt.Sprintf("\n\nCongratulations! Your typing speed is %.2f WPM\n\nPress ENTER to play again.", wpm)
+	details := fmt.Sprintf(
+		"Type: %s\nSource: %s\nAuthor: %s",
+		game.txtDetails.Type,
+		game.txtDetails.Source,
+		game.txtDetails.Author,
+	)
+
+	txt := fmt.Sprintf(
+		"\n\nCongratulations! Your typing speed is %.2f WPM\n\n\n%s\n\n\nPress ENTER to play again.",
+		wpm,
+		details,
+	)
+
 	textView := tview.NewTextView()
 	textView.SetTextAlign(tview.AlignCenter)
 	textView.SetText(txt)

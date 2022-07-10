@@ -33,6 +33,16 @@ func New(corpus Corpus) *Game {
 
 // Run ...
 func (game *Game) Run() error {
+	game.app.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+		switch e.Key() {
+		case tcell.KeyCtrlR:
+			game.start()
+			return nil
+		default:
+			return e
+		}
+	})
+
 	game.start()
 	return game.app.Run()
 }
@@ -49,7 +59,7 @@ func (game *Game) start() {
 	flex.AddItem(textView, 0, 1, false)
 	flex.AddItem(typingField, 3, 0, true)
 
-	flex.SetBorder(true).SetTitle("TypeRacerCLI")
+	flex.SetBorder(true).SetTitle("Typing Test")
 
 	game.mainContainer = flex
 
@@ -58,6 +68,7 @@ func (game *Game) start() {
 
 func (game *Game) textView(txt *text) *tview.TextView {
 	textView := tview.NewTextView()
+	textView.SetWordWrap(true)
 	textView.SetDynamicColors(true)
 	textView.SetText(txt.color(""))
 
